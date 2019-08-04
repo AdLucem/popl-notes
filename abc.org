@@ -1,0 +1,40 @@
+#+TITLE: Hello
+#+AUTHOR: AdLucem
+
+* This is the first point
+
+Some text.
+
+** This is a sub-point
+
+Some more text.
+
+#+NAME: How to open a code block
+#+BEGIN_EXAMPLE
+ 
+<s
+ENTER
+
+#+END_EXAMPLE
+
+#+NAME: code_block_1
+#+BEGIN_SRC python
+   
+def tautology():
+    return True
+#+END_SRC
+
+#+NAME: code_block_2
+#+BEGIN_SRC python
+   
+def contradiction():
+    return False
+#+END_SRC
+
+
+* This is where you put it all together
+
+#+BEGIN_SRC python :eval no :noweb yes :tangle Intro.py 
+<<code_block_1>>
+<<code_block_2>>
+#+END_SRC
