@@ -1,0 +1,149 @@
+#+TITLE: Introduction to Haskell
+#+AUTHOR: Atreya Ghosal
+
+This is a beginner's introduction to Haskell, assuming that the beginner has already been introduced to FP principles. I'm taking much of this from [[http://learnyouahaskell.com/chapters][Learn You A Haskell]], but skipping the introduction of basic elements of FP like lambdas, recursion, higher order functions, etc, and moving straight on to how to program in Haskell.
+
+Since the point of the POPL course is to introduce you to concepts like currying and type safety and functors and monads (don't ask), and since thoroughly learning Haskell... takes time, I'm going to focus these classes on the elements of Haskell you'll need for this course- which should be enough to let you write, say, a competitive coding program (or an interpreter) in Haskell.
+
+* QuickSort in One Line
+
+Okay, quicksort in /three/ lines.
+
+#+BEGIN_SRC haskell :tangle quicksort.hs
+  quicksort :: (Ord a) => [a] -> [a]  
+  quicksort [] = []  
+  quicksort (x:xs) =  (quicksort [a | a <- xs, a <= x]) ++ [x] ++ (quicksort [a | a <- xs, a > x])
+#+END_SRC
+
+Cool, right? So this is why we're learning Haskell. Because it's a nice, expressive, (comparatively) widely-used functional language, with a decent ecosystem for everything from web dev to ML, and manages to remain pure and strongly typed while doing so.
+
+* Haskell Basics
+
+** How To Define A Function
+
+#+BEGIN_SRC haskell
+  f :: Int -> Int -> Bool
+  f a b = a == b
+#+END_SRC
+
+*** How To Define, Like, Half A Function
+
+#+BEGIN_SRC haskell currying.hs
+  add :: Int -> Int -> Int
+  add a b = a + b
+
+  incr :: Int -> Int
+  incr = add 1
+#+END_SRC
+
+*** Higher Order Functions
+
+#+BEGIN_SRC haskell hof.hs
+
+  f
+
+
+#+END_SRC
+
+
+** Lists Like You Did In Math Class
+
+Haskell provides =ranges= and =list comprehensions=. So, for the famous "Get all the prime numbers between 1 and 100" problem:
+
+#+BEGIN_SRC haskell primes.hs
+  primes :: [Int]
+  primes = [x | x <- [1..100],
+                x `mod` 2 == 0,
+                x `mod` 3 == 0,
+                x `mod` 5 == 0,
+                x `mod` 7 == 0]
+#+END_SRC
+
+** Lists and Tuples
+
+One difference between Haskell and Racket: in Haskell, as you saw in the type annotations, lists can only contain one type of thing. (I would say one type of /object/, but that might confuse you with OOP.) If you want to put multiple types of thing together, you use a tuple.
+
+=zip= is a function that combines two lists into a list of tuples.
+
+=zipWith= is a slightly cooler function, that combines two lists using any function you want.
+ 
+#+BEGIN_SRC haskell zips.hs
+
+  same :: Eq a, Eq b => [a] -> [b] -> [Bool]  
+  same la lb = zipWith (==) la lb
+#+END_SRC
+
+* List Functions
+
+#+BEGIN_SRC haskell listFns.hs
+
+  mse :: [Float] -> [Float] -> Float
+  mse la lb = (foldr + 0 $ zipWith - (map (^2) la) (map (^2) lb)) / (length la)
+#+END_SRC
+
+Oh, and, have a look at the =$= operator- it automatically gives operator precedence to anything to the left of the operator.
+
+* Make Your Haskell Programs Readable
+
+Use =let= expressions to make your program more readable. Going back to the mean-square-error example:
+
+#+BEGIN_SRC haskell let.hs
+  mse :: [Float] -> [Float] -> Float
+  mse la lb =
+    let
+      n = length la
+      laSq = (map (^2) la)
+      lbSq = (map (^2) lb)
+     in
+      (zipWith - laSq lbSq) / n
+
+#+END_SRC
+
+Or =where= expressions.
+
+#+BEGIN_SRC haskell where.hs
+  mse :: [Float] -> [Float] -> Float
+  mse la lb = (zipWith - laSq lbSq) / n
+    where
+      n = length la
+      laSq = (map (^2) la)
+      lbSq = (map (^2) lb)
+
+#+END_SRC
+
+** **Please** Don't Program Like This
+
+You can do things like this in Haskell. Please don't.
+
+#+BEGIN_SRC haskell golf.hs
+  mse :: [Float] -> [Float] -> Float
+  mse la lb = (/) (length la) (foldr1 - $ map (map (^2)) [la, lb])
+
+#+END_SRC
+
+
+* About Those Type Annotations
+
+This is a very basic introduction to Haskell's type system.
+
+In Haskell, every expression has a type associated with it.
+
+#+BEGIN_SRC haskell
+Prelude> :t "abcd"
+"abcd" :: [Char]
+Prelude> let f a = a + 1
+Prelude> :t f
+f :: Num a => a -> a 
+#+END_SRC
+
+The type of a function is =arg1 -> arg2 -> ... -> argN -> ReturnType=
+
+** Type Variables
+
+http://learnyouahaskell.com/types-and-typeclasses#type-variables
+
+** Type Classes
+
+Typeclasses- **not** similar to OOP classes- enforce some behaviour on the types that are members of these classes.
+
+http://learnyouahaskell.com/types-and-typeclasses#believe-the-type
