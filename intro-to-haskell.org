@@ -21,27 +21,29 @@ Cool, right? So this is why we're learning Haskell. Because it's a nice, express
 
 ** How To Define A Function
 
-#+BEGIN_SRC haskell
-  f :: Int -> Int -> Bool
+#+BEGIN_SRC haskell :tangle function.hs
+  -- f :: Int -> Int -> Bool
   f a b = a == b
 #+END_SRC
 
 *** How To Define, Like, Half A Function
 
-#+BEGIN_SRC haskell currying.hs
+#+BEGIN_SRC haskell :tangle partialApp.hs
   add :: Int -> Int -> Int
   add a b = a + b
 
-  incr :: Int -> Int
-  incr = add 1
+  --incr :: Int -> Int
+  --incr = add 1
 #+END_SRC
 
 *** Higher Order Functions
 
-#+BEGIN_SRC haskell hof.hs
+#+BEGIN_SRC haskell :tangle hof.hs
 
-  f
 
+  map' :: (a -> b) -> [a] -> [b]
+  map' f [] = []
+  map' f ls =  (f (head ls)) : (map' f (tail ls))
 
 #+END_SRC
 
@@ -50,13 +52,13 @@ Cool, right? So this is why we're learning Haskell. Because it's a nice, express
 
 Haskell provides =ranges= and =list comprehensions=. So, for the famous "Get all the prime numbers between 1 and 100" problem:
 
-#+BEGIN_SRC haskell primes.hs
+#+BEGIN_SRC haskell :tangle primes.hs
   primes :: [Int]
-  primes = [x | x <- [1..100],
-                x `mod` 2 == 0,
-                x `mod` 3 == 0,
-                x `mod` 5 == 0,
-                x `mod` 7 == 0]
+  primes = [x | x <- [1..100], 
+                (x `mod` 2 /= 0 &&
+                x `mod` 3 /= 0 &&
+                x `mod` 5 /= 0 &&
+                x `mod` 7 /= 0)]
 #+END_SRC
 
 ** Lists and Tuples
@@ -67,60 +69,56 @@ One difference between Haskell and Racket: in Haskell, as you saw in the type an
 
 =zipWith= is a slightly cooler function, that combines two lists using any function you want.
  
-#+BEGIN_SRC haskell zips.hs
+#+BEGIN_SRC haskell :tangle zips.hs
 
-  same :: Eq a, Eq b => [a] -> [b] -> [Bool]  
+  same :: Eq a => [a] -> [a] -> [Bool]  
   same la lb = zipWith (==) la lb
 #+END_SRC
 
 * List Functions
 
-#+BEGIN_SRC haskell listFns.hs
+Take a look at =foldr=, =foldl=, =zipWith= and =map=.
+
+#+BEGIN_SRC haskell :tangle mse.hs
+  incr :: Float -> a -> Float
+  incr n a = n + 1.0
+
+  len :: [a] -> Float
+  len = foldl incr 0.0 
 
   mse :: [Float] -> [Float] -> Float
-  mse la lb = (foldr + 0 $ zipWith - (map (^2) la) (map (^2) lb)) / (length la)
+  mse la lb = (foldr (+) 0 $ map (^2) $ zipWith (-) la lb) / (len la)   
 #+END_SRC
 
-Oh, and, have a look at the =$= operator- it automatically gives operator precedence to anything to the left of the operator.
+Oh, and, have a look at the =$= operator- it automatically gives operator precedence to anything to the left of the operator. Brackets do, however, have precedence over =$=.
 
 * Make Your Haskell Programs Readable
 
 Use =let= expressions to make your program more readable. Going back to the mean-square-error example:
 
-#+BEGIN_SRC haskell let.hs
-  mse :: [Float] -> [Float] -> Float
-  mse la lb =
+#+BEGIN_SRC haskell :tangle mse.hs
+  mseLet :: [Float] -> [Float] -> Float
+  mseLet la lb =
     let
-      n = length la
-      laSq = (map (^2) la)
-      lbSq = (map (^2) lb)
+      n = len la
+      diff = zipWith (-) la lb
+      diffSq = map (^2) diff
      in
-      (zipWith - laSq lbSq) / n
+      (foldr (+) 0 diffSq) / n
 
 #+END_SRC
 
 Or =where= expressions.
 
-#+BEGIN_SRC haskell where.hs
-  mse :: [Float] -> [Float] -> Float
-  mse la lb = (zipWith - laSq lbSq) / n
+#+BEGIN_SRC haskell :tangle mse.hs
+  mseWhere :: [Float] -> [Float] -> Float
+  mseWhere la lb = (foldr (+) 0 diffSq) / n
     where
-      n = length la
-      laSq = (map (^2) la)
-      lbSq = (map (^2) lb)
+        n = len la
+        diff = zipWith (-) la lb
+        diffSq = map (^2) diff
 
 #+END_SRC
-
-** **Please** Don't Program Like This
-
-You can do things like this in Haskell. Please don't.
-
-#+BEGIN_SRC haskell golf.hs
-  mse :: [Float] -> [Float] -> Float
-  mse la lb = (/) (length la) (foldr1 - $ map (map (^2)) [la, lb])
-
-#+END_SRC
-
 
 * About Those Type Annotations
 
@@ -136,14 +134,95 @@ Prelude> :t f
 f :: Num a => a -> a 
 #+END_SRC
 
-The type of a function is =arg1 -> arg2 -> ... -> argN -> ReturnType=
+The type of a function that takes =N= arguments and returns a thing of type =ReturnType= is =type_arg1 -> type_arg2 -> ... -> type_argN -> ReturnType=.
 
-** Type Variables
+<Currying not explained here>
 
-http://learnyouahaskell.com/types-and-typeclasses#type-variables
+** Defining Your Own Types in Haskell
+
+There are a variety of ways to define your own type in Haskell. Suppose, I want to define a list of Floats as a vector.
+
+#+BEGIN_SRC haskell :tangle vector.hs
+
+  type Vector = [Float]
+
+#+END_SRC
+
+I'm not making my own type- what I'm actually doing is renaming a =List= of =Float= objects to a vector. So this is a **Type Synonym** definition.
+
+On the other hand, if I wanted my =Vector= type to include both the length of the vector and the vector:
+
+#+BEGIN_SRC haskell :tangle vector.hs
+
+  data Vector' = Vector' Int [Float]
+
+#+END_SRC
+
+This is a type definition, defining a new type =Vector'=. The second =Vector'= is called a type constructor- a special function that takes a set of arguments and returns a type- while the next two types denote the types of the objects contained in the =Vector'= type- length of the vector, which is an =Int=, and the 'vector' itself, which is a list of =Float=s.
+
+Oh, but in Haskell syntax, the name of a type- whether a type synonym or a type definition- begins with a capital letter.
+
+The above type definition syntax doesn't make it obvious what the arguments to the type are. Which is why we have **Record Syntax** for type definitions:
+
+#+BEGIN_SRC haskell :tangle vector.hs
+
+  data Vector'' = Vector'' {dim :: Int, vector :: [Float]}
+
+#+END_SRC
+
+*** Getters
+
+A convenient part of Haskell type syntax is that it automatically constructs the functions that fetch the various fields of a type for you. For example, imagine we define a =Vector'= like so:
+
+#+BEGIN_SRC haskell
+> let a = Vector'' 2 [1, 1, 2]
+#+END_SRC
+
+If we want to get the dimensions of the vector:
+
+#+BEGIN_SRC haskell
+> dim a
+2
+#+END_SRC
+
+Or the vector itself:
+
+#+BEGIN_SRC haskell
+> vector a
+[1, 1, 2]
+#+END_SRC
+
+*** Now Recursively, And Enumeratively
+
+You've seen recursion and sum types in a type definition in Racket- where I defined the trees. It works similarly in Haskell:
+
+#+BEGIN_SRC haskell :tangle trees.hs
+
+  data Tree = Tree Int Tree Tree
+#+EN
+*** Now Recursively, and Enumeratively
+
+You've seen recursive type definitions and sum types in the definition of =tree= in Racket. Haskell works similarly:
+
+#+BEGIN_SRC haskell :tangle trees.hs
+
+  data Tree = Empty | Node Int Tree Tree
+#+END_SRC 
+
+It's to be noted here that =Empty= and =Node= are two different constructors. 
+
+And yes, you can write the =Node= type using record syntax.
+
+** Type Variables and Polymorphism
+
+Polymorphism is your basic concept of polymorphism that you (hopefully) learned in OOP- that a single function can perform different behaviours when it takes arguments of different types. For example, =+= in Python will add two numbers but concatenate two strings, so =+= is a polymorphic function in Python. (Not in Haskell- =++= concats two strings.)
+
+A type variable is, essentially, a placeholder for a type- a variable that says "any type can come here." However, the same type variable in a type definition stands for the same type- eg: a function of type =[a] -> a= means that the function will take a list of things of type =a=, where =a= can be any type. But the return type of the function will be the type of the objects in the list.
+
+LYAH on type variables: http://learnyouahaskell.com/types-and-typeclasses#type-variables
 
 ** Type Classes
 
-Typeclasses- **not** similar to OOP classes- enforce some behaviour on the types that are members of these classes.
+So you see those names before the double-arrows? Those are typeclasses. Typeclasses- **not** similar to OOP classes- enforce some behaviour on the types that are members of these classes.
 
-http://learnyouahaskell.com/types-and-typeclasses#believe-the-type
+LYAH on typeclasses: http://learnyouahaskell.com/types-and-typeclasses#typeclasses-101
