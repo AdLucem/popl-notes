@@ -1,0 +1,136 @@
+#+TITLE: Introduction to Haskell Types
+#+AUTHOR: Atreyee Ghosal
+
+
+This is a very basic introduction to Haskell's type system- which is very similar to the type system in C, except for the fact of currying.
+
+In Haskell, every expression has a type associated with it.
+
+#+BEGIN_SRC haskell
+Prelude> :t "abcd"
+"abcd" :: [Char]
+Prelude> let f a = a + 1
+Prelude> :t f
+f :: Num a => a -> a 
+#+END_SRC
+
+The type of a function that takes =N= arguments and returns a thing of type =ReturnType= is =type_arg1 -> type_arg2 -> ... -> type_argN -> ReturnType=.
+
+* Defining Your Own Types in Haskell
+
+There are a variety of ways to define your own type in Haskell. Suppose, I want to define a list of Floats as a vector.
+
+#+BEGIN_SRC haskell :tangle vector.hs
+
+  type Vector = [Float]
+
+#+END_SRC
+
+I'm not making my own type- what I'm actually doing is renaming a =List= of =Float= objects to a vector. So this is a **Type Synonym** definition.
+
+On the other hand, if I wanted my =Vector= type to include both the length of the vector and the vector:
+
+#+BEGIN_SRC haskell :tangle vector.hs
+
+  data Vector' = Vector' Int [Float]
+
+#+END_SRC
+
+This is a type definition, defining a new type =Vector'=. The second =Vector'= is called a type constructor- a special function that takes a set of arguments and returns a type- while the next two types denote the types of the objects contained in the =Vector'= type- length of the vector, which is an =Int=, and the 'vector' itself, which is a list of =Float=s.
+
+Oh, but in Haskell syntax, the name of a type- whether a type synonym or a type definition- begins with a capital letter.
+
+The above type definition syntax doesn't make it obvious what the arguments to the type are. Which is why we have **Record Syntax** for type definitions:
+
+#+BEGIN_SRC haskell :tangle vector.hs
+
+  data Vector'' = Vector'' {dim :: Int, vector :: [Float]}
+
+#+END_SRC
+
+*** Getters
+
+A convenient part of Haskell type syntax is that it automatically constructs the functions that fetch the various fields of a type for you. For example, imagine we define a =Vector'= like so:
+
+#+BEGIN_SRC haskell
+> let a = Vector'' 2 [1, 1, 2]
+#+END_SRC
+
+If we want to get the dimensions of the vector:
+
+#+BEGIN_SRC haskell
+> dim a
+2
+#+END_SRC
+
+Or the vector itself:
+
+#+BEGIN_SRC haskell
+> vector a
+[1, 1, 2]
+#+END_SRC
+
+*** Now Recursively, And Enumeratively
+
+You've seen recursion and sum types in a type definition in Racket- where I defined the trees. It works similarly in Haskell:
+
+#+BEGIN_SRC haskell :tangle trees.hs
+
+  data Tree = Tree Int Tree Tree
+#+EN
+*** Now Recursively, and Enumeratively
+
+You've seen recursive type definitions and sum types in the definition of =tree= in Racket. Haskell works similarly:
+
+#+BEGIN_SRC haskell :tangle trees.hs
+
+  data Tree = Empty | Node Int Tree Tree
+#+END_SRC 
+
+It's to be noted here that =Empty= and =Node= are two different constructors. 
+
+And yes, you can write the =Node= type using record syntax.
+
+* Type Variables and Polymorphism
+
+Polymorphism is your basic concept of polymorphism that you (hopefully) learned in OOP- that a single function can perform different behaviours when it takes arguments of different types. For example, =+= in Python will add two numbers but concatenate two strings, so =+= is a polymorphic function in Python. (Not in Haskell- =++= concats two strings.)
+
+A type variable is, essentially, a placeholder for a type- a variable that says "any type can come here." However, the same type variable in a type definition stands for the same type- eg: a function of type =[a] -> a= means that the function will take a list of things of type =a=, where =a= can be any type. But the return type of the function will be the type of the objects in the list.
+
+LYAH on type variables: http://learnyouahaskell.com/types-and-typeclasses#type-variables
+
+* Type Classes
+
+So you see those names before the double-arrows? Those are typeclasses. Typeclasses- **not** similar to OOP classes- enforce some behaviour on the types that are members of these classes.
+
+LYAH on typeclasses: http://learnyouahaskell.com/types-and-typeclasses#typeclasses-101
+* A Few In-Class Exercises
+
+** Mean Square Error
+
+Write a MSE function that takes two lists of the same length, and returns the mean square error between the lists.
+
+** toBinary 
+
+Write a function that takes in an integer, and returns the binary form of that integer as a list of numbers.
+
+** Tree, All Over Again
+
+Write a datatype that represents a tree.
+
+*** Instantiating Your Type As Part of a Typeclass
+
+Write =show= and =read= instances for your tree.
+ 
+** Matrices
+
+Define a =matrix= type- as a type synonym for a list of lists.
+
+*** Matrix Multiplication 
+
+Write a matrix multiplication function using your matrix type.
+Yes, you have to check the constraints.
+
+** Parametrized Types *if there is time
+
+Write a type that takes in a parameter =a=, and constructs a tree containing values of type =a= at the nodes.
