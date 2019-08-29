@@ -1,0 +1,73 @@
+#+TITLE: Input, Output and State in Haskell
+#+AUTHOR: Atreyee Ghosal
+
+* Hello World
+
+Haskell automatically executes the =main= function in a file.
+
+#+BEGIN_SRC haskell :tangle helloWorld.hs
+
+main = putStrLn "Hello World"
+
+#+END_SRC
+
+putStrLn has a type of =IO ()=. That marks it as an **IO action**, that returns a value of () (the empty tuple- in other words, nothing.)
+
+You can chain multiple actions together with the =do= keyword:
+
+#+BEGIN_SRC haskell :tangle helloPerson.hs
+
+  main = do
+    putStrLn "What's your name?"
+    name <- getLine
+    putStrLn $ "Hello " ++ name
+
+#+END_SRC
+
+=getLine= is an =IO= action that returns a value of type =String=, so the type of getLine is =IO String=
+
+=<-= is an operator that kind of 'binds' the return value of an IO action to a name.
+
+=main= - the function itself- has a type of IO (). By convention, we don't specify the type declaration of =main=. You can only use the =<-= operator within a function that has the type =IO Something=. (Or within other monadic functions, but um burrito) 
+
+* Actions???
+
+So, what's this stuff about actions?
+
+Well, think of the functional programming principle I told you about- immutability and pureness- i.e: no side effects. So a function can't access anything that's not passed to it (pure), and nothing ever changes (immutability).
+
+But any real-world program is all about change- changing the state of a computer, or a server, or a robot arm- whatever. So, to write anything useful in Haskell, you need to do some impure programming that affects the outside world. How?
+
+Well, basically via the =IO ()= type.
+
+** h w a t
+
+To properly explain what =IO ()= is, I'll have to go into some type-level stuff called monads. I'll do the quick-and-dirty version here. If you want an extended explanation of what a monad is, it'll be uploaded in my =types-in-haskell.org= notes over the weekend. Or you can read Learn You A Haskell's section on functors, applicative functors, monoids and monads.
+
+** Bad Analogies and Burritos
+
+So the =IO ()= type is called the =IO= monad. A monad is a little like a wrapper, that 'wraps' around the impure part of the program, and prevents side-effects from getting into the rest of the Haskell code. =Monad= is a typeclass in Haskell, and =IO= is an instance of =Monad=, within which you run any input/output action.
+
+Any functions that have a type of =IO Something= are said to run 'within' the IO monad. This foreshadows another thing- /you can't take values outside a monad/.
+
+Any function, for example, that returns something of type =IO a=, can only run within another IO function. You can't 'extract' the value within =IO a= and use it in a pure function elsewhere... unless that pure function itself is called within an =IO= block. 
+
+For example:
+
+#+BEGIN_SRC haskell :tangle addStars.hs
+
+  addStars :: String -> String
+  addStars s = "**" ++ s ++ "**"
+
+  main = do
+    putStrLn "String:"
+    n <- getLine
+    let n' = addStars n
+    putStrLn n'
+  
+#+END_SRC
+
+Another thing about =main= - a Haskell file, or program, cannot have multiple =main= functions. (The compiler will yell at you if you do that.)
+
+And also a thing about =do= blocks- they must end with a =return <value>= or a function that returns a value. You can't end a =do= block with a binding. (Once again, the compiler will yell at you. It's useful like that.)
+

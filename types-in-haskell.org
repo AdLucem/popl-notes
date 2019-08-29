@@ -74,17 +74,26 @@ Or the vector itself:
 
 You've seen recursion and sum types in a type definition in Racket- where I defined the trees. It works similarly in Haskell:
 
-#+BEGIN_SRC haskell :tangle trees.hs
+#+BEGIN_SRC haskell
 
   data Tree = Tree Int Tree Tree
-#+EN
+#+END_SRC
 *** Now Recursively, and Enumeratively
 
 You've seen recursive type definitions and sum types in the definition of =tree= in Racket. Haskell works similarly:
 
 #+BEGIN_SRC haskell :tangle trees.hs
 
-  data Tree = Empty | Node Int Tree Tree
+    data Tree = Empty | Node Int Tree Tree
+
+    -- function that, if Tree is an empty node, returns -1
+    -- else, returns key of that node (and that node only, no need to recurse to child nodes)
+  -- with any one of the types I showed you (Maybe or Either),make this a function that returns
+    -- the node key if it's a nonempty node, and "Empty" if it's an empty node
+
+  getKey :: Tree -> Int
+  getKey Empty = -1
+  getKey (Node a _ _) = a
 #+END_SRC 
 
 It's to be noted here that =Empty= and =Node= are two different constructors. 
@@ -131,6 +140,39 @@ Define a =matrix= type- as a type synonym for a list of lists.
 Write a matrix multiplication function using your matrix type.
 Yes, you have to check the constraints.
 
-** Parametrized Types *if there is time
+* Parametrized Types
+
+#+BEGIN_SRC haskell 
+
+#+END_SRC
+
+** Exercise
 
 Write a type that takes in a parameter =a=, and constructs a tree containing values of type =a= at the nodes.
+
+
+** Kinds
+* Useful Haskell Types
+
+We'll google these types on Hoogle. This is your introduction to Hoogle.
+
+** Maybe a
+
+#+BEGIN_SRC haskell :tangle maybe.hs
+
+  div :: Float -> Float -> Maybe (Float)
+  div a b = if b /= 0  then Just (a / b) else Nothing
+
+#+END_SRC
+
+** Either a b
+ 
+#+BEGIN_SRC haskell :tangle either.hs
+
+  div :: Float -> Float -> Either Float String
+  div a b = if b /= 0 then Left (a / b) else Right "Divide by zero error"
+
+#+END_SRC
+
+* Functors
+* Burritos
