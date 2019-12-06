@@ -50,16 +50,16 @@ I have not cut marks for this confusion because I don't expect you all to know t
 
 In this and the previous question, a lot of people makes the mistake of treating a _stream_ as a _list_. Think of what will happen if you call a recursing-over-lists function that has no base case for an infinite list!
 
-## 4.1
+## 3.1
 
 Marked on if you've gotten the semantic domains correct and complete.
 
-## 4.2
+## 3.2
 
 * It is possible to functionally program in C with absolutely no mutation, and treating the memory as a sort of extended environment. "But why would you do that." is a very good question.
 * I'm very amused to see all of y'all recommending racket, given that I don't think any of you will touch Racket after this course.
 
-## 4.3
+## 3.3
 
 I have given full marks if you have made points using any three out of the following:
 
