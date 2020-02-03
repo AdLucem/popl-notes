@@ -65,6 +65,7 @@ Fixpoint plus (n : nat) (m : nat) : nat :=
     | O ⇒ m
     | S n' ⇒ S (plus n' m)
   end.
+
 (* Exercise 3: defining factorial function in coq *)
 Fixpoint factorial (n:nat) : nat :=
   match n with

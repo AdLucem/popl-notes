@@ -604,15 +604,18 @@ Proof. simpl. reflexivity.  Qed.
     yielding a [b]oolean.  Instead of making up a new [Fixpoint] for
     this one, define it in terms of a previously defined function. *)
 
+(** The [geb] function tests whether its first argument is greater than or
+  equal to its second argument, yielding a boolean. *)
+
 Definition blt_nat (n m : nat) : bool :=
-  (* FILL IN HERE *) admit.
+  negb (leb m n).
 
 Example test_blt_nat1:             (blt_nat 2 2) = false.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 Example test_blt_nat2:             (blt_nat 2 4) = true.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 Example test_blt_nat3:             (blt_nat 4 2) = false.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 (** [] *)
 
 (* ###################################################################### *)
@@ -787,7 +790,13 @@ Proof.
 Theorem plus_id_exercise : forall n m o : nat,
   n = m -> m = o -> n + m = m + o.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m o.
+  intros H H1.
+  rewrite -> H.
+  rewrite -> H1.
+  reflexivity.
+  Qed.
+  
 (** [] *)
 
 (** The [Admitted] command tells Coq that we want to skip trying
@@ -819,7 +828,12 @@ Theorem mult_S_1 : forall n m : nat,
   m = S n ->
   m * (1 + n) = m * m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m.
+  intros H.
+  rewrite -> plus_1_l.
+  rewrite -> H.
+  reflexivity.
+Qed.
 (** [] *)
 
 
@@ -1026,14 +1040,33 @@ Qed.
 Theorem andb_true_elim2 : forall b c : bool,
   andb b c = true -> c = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros b c.
+  destruct b.
+  - simpl.
+    intros H.
+    rewrite -> H.
+    reflexivity.
+  - destruct c.
+    + reflexivity.
+    + simpl.
+      intros H.
+      rewrite -> H.
+      reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star (zero_nbeq_plus_1)  *)
 Theorem zero_nbeq_plus_1 : forall n : nat,
-  beq_nat 0 (n + 1) = false.
+          beq_nat 0 (n + 1) = false.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n.
+  destruct n.
+  - simpl.
+    reflexivity.
+  - simpl.
+    reflexivity.
+Qed.
+
 (** [] *)
 
 (* ###################################################################### *)
@@ -1125,26 +1158,65 @@ Theorem identity_fn_applied_twice :
   (forall (x : bool), f x = x) ->
   forall (b : bool), f (f b) = b.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros f H b.
+  rewrite -> H.
+  rewrite -> H.
+  reflexivity.
+Qed.
 
 (** Now state and prove a theorem [negation_fn_applied_twice] similar
     to the previous one but where the second hypothesis says that the
     function [f] has the property that [f x = negb x].*)
 
 (* FILL IN HERE *)
-(** [] *)
+Theorem negation_fn_applied_twice :
+  forall (f : bool -> bool),
+    (forall (x : bool), f x = negb x) ->
+    forall (b : bool), f (f b) = b.
+Proof.
+  intros f H b.
+  rewrite -> H.
+  rewrite -> H.
+  destruct b.
+  - simpl.
+    reflexivity.
+  - simpl.
+    reflexivity.
+Qed.
 
 (** **** Exercise: 2 stars (andb_eq_orb)  *)
 (** Prove the following theorem.  (You may want to first prove a
     subsidiary lemma or two. Alternatively, remember that you do
     not have to introduce all hypotheses at the same time.) *)
 
+Theorem when_andb_orb_eq :
+  forall (a : bool),
+    andb a a = orb a a.
+Proof.
+  intros a.
+  destruct a.
+  - simpl.
+    reflexivity.
+  - simpl.
+    reflexivity.
+Qed.
+
 Theorem andb_eq_orb :
   forall (b c : bool),
   (andb b c = orb b c) ->
   b = c.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros b c.
+  destruct b.
+  - compute. 
+    intros H.
+    rewrite -> H.
+    reflexivity.
+  - compute.
+    intros H.
+    rewrite -> H.
+    reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars (binary)  *)
@@ -1185,8 +1257,22 @@ Proof.
         then incrementing.
 *)
 
-(* FILL IN HERE *)
-(** [] *)
+Inductive bin : Type :=
+| X : bin
+| Y : bin -> bin
+| Z : bin -> bin.
 
-(** $Date: 2016-05-26 16:17:19 -0400 (Thu, 26 May 2016) $ *)
+Fixpoint incr (b: bin) : bin :=
+  match b with
+    | X => Z X
+    | Y b' => Z b'
+    | Z b' => Y (incr b')
+  end.
+
+Fixpoint bin_to_nat (b: bin) : nat :=
+  match b with
+    | X => O
+    | Y b' => 2 * (bin_to_nat b')
+    | Z b' => 1 + 2 * (bin_to_nat b')
+  end.
 
