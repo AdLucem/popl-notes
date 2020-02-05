@@ -1,0 +1,157 @@
+\documentclass{beamer}
+%
+% Choose how your presentation looks.
+%
+% For more themes, color themes and font themes, see:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+%
+\mode<presentation>
+{
+  \usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
+  \usecolortheme{default} % or try albatross, beaver, crane, ...
+  \usefonttheme{default}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+} 
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\title[Your Short Title]{Your Presentation}
+\author{You}
+\institute{Where You're From}
+\date{Date of Presentation}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Uncomment these lines for an automatically generated outline.
+%\begin{frame}{Outline}
+%  \tableofcontents
+%\end{frame}
+
+
+\begin{frame}{An Opinion on How Language Works}
+
+\begin{itemize}
+\item
+The verb is head of sentence or clause.
+\item
+Words combine with other words to form larger units of meaning - compositionality.
+\item
+All the arguments of a verb combine with it simultaneously.
+\end{itemize}
+
+Okay but how do we model this?
+
+\end{frame}
+
+
+\begin{frame}{According to Montague}
+
+Syntactic algebra, semantic algebra, homomorphism
+
+\end{frame}
+
+
+\begin{frame}{So Our Syntactico-Semantic Algebra Is...}
+
+\begin{itemize}
+\item
+Categories? No
+\item
+Lambda calculus? No
+\item
+Linear algebra? Wait how is that a syntactic-
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Pi Calculus, I Choose You!}
+
+The model:
+
+\begin{itemize}
+\item
+Words are processes that contain some information.
+\item
+These process have state.
+\item
+These processes communicate with each other (other words in the sentence) via channels.
+\item
+These processes can change state on exchanging certain information.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Pi Calculus: The Syntax}
+
+Some pseudocode to illustrate the syntax.
+
+\begin{verbatim}
+data ArgRole = Nominative | Accusative
+
+data Channel = Output ArgRole | Input ArgRole | Null
+
+data Process = Null 
+			 | Prefix Process
+			 | Sum Process Process
+			 | Parallel Process Process
+			 | Scoped Channel Process
+			 | Name String [Channel] Process  
+\end{verbatim}
+
+\end{frame}
+
+
+\begin{frame}{CCS: The Syntax}
+
+Some pseudocode to illustrate the syntax.
+
+\begin{verbatim}
+data Channel = Offers ArgRole | Accepts ArgRole  
+               
+data Process = Name 
+			 | Comm Prefix Process
+			 | Sum Process Process
+			 | Parallel Process Process
+			 | Scoped Channel Process
+			 | Name String [Channel] Process  
+\end{verbatim}
+
+Excluding relabelling, identifier and conditional expressions.
+
+\end{frame}
+
+
+\begin{frame}{CCS: The Semantics}
+
+\begin{verbatim}
+type Name = String
+
+data ArgRole = Nominative | Accusative
+			 
+ram = Comm (Offers Nominative) "ram-subj"
+phal = Comm (Offers Accusative) "phal-obj"
+khaana = Comm (Accepts Nominative) "khaata-int"
+khaana = Comm (Accepts Accusative) "khaata-tr-inc"
+khaata-int = Comm (Accepts Accusative) "khaata-tr"
+\end{verbatim}
+
+The intended trace of the above system when run is:
+
+\begin{verbatim}
+
+ram | khaana = ram-subj | khaata-int
+
+\end{verbatim}
+
+\end{frame}
+
+
+\end{document}
